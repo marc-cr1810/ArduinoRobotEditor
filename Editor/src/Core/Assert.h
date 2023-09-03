@@ -6,7 +6,7 @@
 #ifdef ED_ENABLE_ASSERTS
 // These assert macros are not supposed to be used and are only helpers for ED_ASSERT and ED_CORE_ASSERT
 
-#define ED_INTERNAL_ASSERT_IMPL(check, msg, ...) { if(!(check)) { ED_ERROR(msg, __VA_ARGS__); ED_DEBUGBREAK(); } }
+#define ED_INTERNAL_ASSERT_IMPL(check, msg, ...) { if(!(check)) { LOG_ERROR(msg, __VA_ARGS__); ED_DEBUGBREAK(); } }
 #define ED_INTERNAL_ASSERT_WITH_MSG(check, ...) ED_INTERNAL_ASSERT_IMPL(check, "Assertion failed: {0}", __VA_ARGS__)
 #define ED_INTERNAL_ASSERT_NO_MSG(check) ED_INTERNAL_ASSERT_IMPL(check, "Assertion '{0}' failed at {1}:{2}", ED_STRINGIFY_MACRO(check), std::filesystem::path(__FILE__).filename().string(), __LIED__)
 

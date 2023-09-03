@@ -20,7 +20,9 @@ project "Editor"
 		"vendor/glm/glm/**.inl",
 		"vendor/imgui_nodes/**.h",
 		"vendor/imgui_nodes/**.inl",
-		"vendor/imgui_nodes/**.cpp"
+		"vendor/imgui_nodes/**.cpp",
+		"vendor/imgui_textedit/**.h",
+		"vendor/imgui_textedit/**.cpp"
 	}
 
 	defines
@@ -38,6 +40,7 @@ project "Editor"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.imgui_nodes}",
+		"%{IncludeDir.imgui_textedit}",
 		"%{IncludeDir.stb_image}"
 	}
 
