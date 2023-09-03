@@ -1,0 +1,13 @@
+[submodule "Editor/vendor/GLFW"]
+	path = Editor/vendor/GLFW
+	url = https://github.com/marc-cr1810/glfw.git
+[submodule "Editor/vendor/glm"]
+	path = Editor/vendor/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "Editor/vendor/imgui"]
+	path = Editor/vendor/imgui
+	url = https://github.com/marc-crAIE/imgui.git
+	branch = feature/layout
+[submodule "Editor/vendor/spdlog"]
+	path = Editor/vendor/spdlog
+	url = https://github.com/gabime/spdlog.git
