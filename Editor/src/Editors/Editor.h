@@ -18,6 +18,8 @@ public:
 	std::string GetFilepath() const { return m_Filepath; }
 	std::string GetFilename() const { return std::filesystem::path(m_Filepath).filename().string(); }
 
+	virtual bool IsModified() const { return false; }
+
 	bool operator==(const Ref<Editor> b) { return m_Filepath == b->m_Filepath; }
 protected:
 	std::string m_Filepath;

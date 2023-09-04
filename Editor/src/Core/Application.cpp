@@ -89,9 +89,6 @@ Application::Application(const char* projFilepath)
 
 	// Init windows
 	m_ProjExp = CreateRef<ProjectExplorer>(m_Project);
-
-	OpenEditor("src/main.cpp");
-	OpenEditor("src/epch.cpp");
 }
 
 Application::~Application()
@@ -121,7 +118,7 @@ void Application::OpenEditor(const char* filepath)
 	editor->Edit(filepath);
 
 	m_Editors.push_back(editor);
-	m_ActiveEditor = editor;
+	SetActiveEditor(editor);
 }
 
 void Application::CloseEditor(Ref<Editor> editor)
@@ -207,6 +204,13 @@ void Application::LoadTheme()
 	style.FrameRounding = 3;
 	style.PopupRounding = 4;
 	style.ChildRounding = 4;
+}
+
+void Application::SetActiveEditor(Ref<Editor> editor)
+{
+	if (editor)
+		LOG_INFO("Set Active: {0}", editor->GetFilename());
+	m_ActiveEditor = editor;
 }
 
 void Application::OnUpdate()
@@ -336,10 +340,15 @@ void Application::RenderEditorWindows()
 	ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
 	for each (Ref<Editor> editor in m_Editors)
 	{
+
+		ImGuiWindowFlags editFlag = editor->IsModified() ? ImGuiWindowFlags_UnsavedDocument : 0;
 		bool opened = true;
-		if (ImGui::Begin(editor->GetFilename().c_str(), &opened, flags))
+		if (ImGui::Begin(editor->GetFilename().c_str(), &opened, flags | editFlag))
 		{
 			editor->OnRender();
+
+			if (ImGui::IsWindowFocused() && m_ActiveEditor != editor)
+				SetActiveEditor(editor);
 		}
 		ImGui::End();
 
@@ -355,5 +364,8 @@ void Application::RenderEditorWindows()
 	}
 
 	for each (auto editor in editorsToClose)
+	{
 		CloseEditor(editor);
+		SetActiveEditor(nullptr);
+	}
 }

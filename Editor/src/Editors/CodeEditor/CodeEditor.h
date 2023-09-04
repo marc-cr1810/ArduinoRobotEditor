@@ -19,6 +19,8 @@ public:
 
 	void Edit(const char* filepath) override;
 	void Save() override;
+
+	bool IsModified() const override;
 private:
 	Ref<TextEditor> m_TextEditor;
 };

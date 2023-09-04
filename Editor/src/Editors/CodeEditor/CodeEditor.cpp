@@ -49,3 +49,8 @@ void CodeEditor::Save()
 	ofs.close();
 	m_TextEditor->SetText(str);
 }
+
+bool CodeEditor::IsModified() const
+{
+	return m_TextEditor->CanUndo();
+}

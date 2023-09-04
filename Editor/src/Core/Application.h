@@ -19,6 +19,8 @@ public:
 private:
 	void LoadTheme();
 
+	void SetActiveEditor(Ref<Editor> editor);
+
 	void OnUpdate();
 	void OnRender();
 

@@ -10,9 +10,32 @@ ProjectExplorer::ProjectExplorer(Ref<Project> project)
 
 static void EnterDirectory(std::filesystem::path rootPath, std::filesystem::path directory)
 {
+	std::vector<std::filesystem::directory_entry> files;
+
 	for (auto& directoryEntry : std::filesystem::directory_iterator(directory))
 	{
+		if (!directoryEntry.is_directory())
+		{
+			files.push_back(directoryEntry);
+			continue;
+		}
+
 		const auto& path = directoryEntry.path();
+		auto relativePath = std::filesystem::relative(path, rootPath);
+		std::string filenameString = path.filename().string();
+
+		ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+
+		if (ImGui::TreeNodeEx(filenameString.c_str(), nodeFlags) && directoryEntry.is_directory())
+		{
+			EnterDirectory(rootPath, path);
+			ImGui::TreePop();
+		}
+	}
+
+	for each (auto& file in files)
+	{
+		const auto& path = file.path();
 		auto relativePath = std::filesystem::relative(path, rootPath);
 		std::string filenameString = path.filename().string();
 		std::string extension = relativePath.extension().string();
@@ -21,21 +44,12 @@ static void EnterDirectory(std::filesystem::path rootPath, std::filesystem::path
 			continue;
 
 		ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-		if (!directoryEntry.is_directory() && relativePath.has_extension())
-		{
-			nodeFlags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-		}
+		nodeFlags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
-		if (ImGui::TreeNodeEx(filenameString.c_str(), nodeFlags) && directoryEntry.is_directory())
-		{
-			EnterDirectory(rootPath, path);
-			ImGui::TreePop();
-		}
-		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0) && !directoryEntry.is_directory())
-		{
+		ImGui::TreeNodeEx(filenameString.c_str(), nodeFlags);
+
+		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
 			Application::Get().OpenEditor(path.string().c_str());
-			LOG_INFO(path.string());
-		}
 	}
 }
 
