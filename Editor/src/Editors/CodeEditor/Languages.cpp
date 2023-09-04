@@ -236,13 +236,31 @@ const TextEditor::LanguageDefinition& CustomLanguages::Arduino()
 		static const char* const identifiers[] = {
 			"abort", "abs", "acos", "asin", "atan", "atexit", "atof", "atoi", "atol", "ceil", "clock", "cosh", "ctime", "div", "exit", "fabs", "floor", "fmod", "getchar", "getenv", "isalnum", "isalpha", "isdigit", "isgraph",
 			"ispunct", "isspace", "isupper", "kbhit", "log10", "log2", "log", "memcmp", "modf", "pow", "printf", "sprintf", "snprintf", "putchar", "putenv", "puts", "rand", "remove", "rename", "sinh", "sqrt", "srand", "strcat", "strcmp", "strerror", "time", "tolower", "toupper",
-			"std", "string", "vector", "map", "unordered_map", "set", "unordered_set", "min", "max"
+			"std", "string", "vector", "map", "unordered_map", "set", "unordered_set", "min", "max",
+
+			// Arduino specific identifiers
+			"digitalWrite", "digitalRead", "pinMode", "analogWrite", "analogRead", "analogReference", "analogWriteResolution", "analogReadResolution", 
+			"delay", "delayMicroseconds", "micros", "millis", "random", "randomSeed", "cos", "sin", "tan", "constrain", "sq",
+			"bit", "bitClear", "bitRead", "bitSet", "bitWrite", "highByte", "lowByte",
+			"attachInterrupt", "detachInterrupt", "interrupts", "noInterrupts",
+			"noTone", "pulseIn", "pulseInLong", "shiftIn", "shiftOut", "tone"
+			"isAlpha", "isAlphaNumeric", "isAscii", "isControl", "isDigit", "isGraph", "isHexadecimalDigit", "isLowerCase", "isPrintable", "isPunct", "isSpace", "isUpperCase", "isWhitespace",
 		};
 		for (auto& k : identifiers)
 		{
 			TextEditor::Identifier id;
 			id.mDeclaration = "Built-in function";
 			langDef.mIdentifiers.insert(std::make_pair(std::string(k), id));
+		}
+
+		static const char* const preProcDefs[] = {
+			"HIGH", "LOW", "INPUT", "OUTPUT", "INPUT_PULLUP", "LED_BUILTIN"
+		};
+		for (auto& k : preProcDefs)
+		{
+			TextEditor::Identifier id;
+			id.mDeclaration = "Built-in preprocessor definition";
+			langDef.mPreprocIdentifiers.insert(std::make_pair(std::string(k), id));
 		}
 
 		langDef.mTokenize = [](const char* in_begin, const char* in_end, const char*& out_begin, const char*& out_end, TextEditor::PaletteIndex& paletteIndex) -> bool

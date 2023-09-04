@@ -114,8 +114,29 @@ void Application::Run()
 
 void Application::OpenEditor(const char* filepath)
 {
-	Ref<Editor> editor = CreateRef<CodeEditor>(CODE_LANG_ARDUINO);
-	editor->Edit(filepath);
+	auto file = std::filesystem::path(filepath);
+	auto extension = file.extension();
+
+	Ref<Editor> editor;
+	// Arduino Node file (Nodeuino!)
+	if (extension == ".nino")
+	{
+
+	}
+	// Sort out text based files
+	else
+	{
+		TextEditor::LanguageDefinition langDef;
+		if (extension == ".ino")
+			langDef = CODE_LANG_ARDUINO;
+		else if (extension == ".cpp" || extension == ".hpp")
+			langDef = CODE_LANG_CPP;
+		else if (extension == ".c" || extension == ".h")
+			langDef = CODE_LANG_C;
+
+		editor = CreateRef<CodeEditor>(langDef);
+		editor->Edit(filepath);
+	}
 
 	m_Editors.push_back(editor);
 	SetActiveEditor(editor);

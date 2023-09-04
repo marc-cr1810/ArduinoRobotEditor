@@ -1,6 +1,11 @@
 #include "epch.h"
 #include "CodeEditor.h"
 
+CodeEditor::CodeEditor()
+{
+	m_TextEditor = CreateRef<TextEditor>();
+}
+
 CodeEditor::CodeEditor(TextEditor::LanguageDefinition lang)
 {
 	m_TextEditor = CreateRef<TextEditor>();

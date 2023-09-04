@@ -5,12 +5,14 @@
 
 #include "TextEditor.h"
 
+#define CODE_LANG_C			TextEditor::LanguageDefinition::C()
 #define CODE_LANG_CPP		TextEditor::LanguageDefinition::CPlusPlus()
 #define CODE_LANG_ARDUINO	CustomLanguages::Arduino()
 
 class CodeEditor : public Editor
 {
 public:
+	CodeEditor();
 	CodeEditor(TextEditor::LanguageDefinition lang);
 	~CodeEditor();
 
