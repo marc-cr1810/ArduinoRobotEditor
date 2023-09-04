@@ -1,0 +1,4 @@
+Name: TestProject
+StartupFile: main.ino
+IncludeFiles:
+  IncludeFile: main.ino

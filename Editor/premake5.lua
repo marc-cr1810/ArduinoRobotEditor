@@ -41,7 +41,8 @@ project "Editor"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.imgui_nodes}",
 		"%{IncludeDir.imgui_textedit}",
-		"%{IncludeDir.stb_image}"
+		"%{IncludeDir.stb_image}",
+		"%{IncludeDir.yaml_cpp}"
 	}
 
 	links
@@ -49,6 +50,7 @@ project "Editor"
 		"GLFW",
 		"Glad",
 		"ImGui",
+		"yaml-cpp",
 		"opengl32.lib"
 	}
 

@@ -24,7 +24,8 @@ void CodeEditor::OnRender()
 		m_TextEditor->CanUndo() ? "*" : " ",
 		m_TextEditor->GetLanguageDefinition().mName.c_str(), m_Filepath.c_str());
 
-	m_TextEditor->Render("CodeEditor");
+	std::string name = "CodeEditor" + m_Filepath;
+	m_TextEditor->Render(name.c_str());
 }
 
 void CodeEditor::Edit(const char* filepath)

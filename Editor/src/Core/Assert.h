@@ -8,7 +8,7 @@
 
 #define ED_INTERNAL_ASSERT_IMPL(check, msg, ...) { if(!(check)) { LOG_ERROR(msg, __VA_ARGS__); ED_DEBUGBREAK(); } }
 #define ED_INTERNAL_ASSERT_WITH_MSG(check, ...) ED_INTERNAL_ASSERT_IMPL(check, "Assertion failed: {0}", __VA_ARGS__)
-#define ED_INTERNAL_ASSERT_NO_MSG(check) ED_INTERNAL_ASSERT_IMPL(check, "Assertion '{0}' failed at {1}:{2}", ED_STRINGIFY_MACRO(check), std::filesystem::path(__FILE__).filename().string(), __LIED__)
+#define ED_INTERNAL_ASSERT_NO_MSG(check) ED_INTERNAL_ASSERT_IMPL(check, "Assertion '{0}' failed at {1}:{2}", ED_STRINGIFY_MACRO(check), std::filesystem::path(__FILE__).filename().string(), __LINE__)
 
 #define ED_INTERNAL_ASSERT_GET_MACRO_NAME(arg1, arg2, macro, ...) macro
 #define ED_INTERNAL_ASSERT_GET_MACRO(...) ED_EXPAND_MACRO( ED_INTERNAL_ASSERT_GET_MACRO_NAME(__VA_ARGS__, ED_INTERNAL_ASSERT_WITH_MSG, ED_INTERNAL_ASSERT_NO_MSG) )

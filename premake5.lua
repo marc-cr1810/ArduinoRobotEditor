@@ -28,6 +28,7 @@ group "Dependencies"
 	include "Editor/vendor/GLFW"
 	include "Editor/vendor/Glad"
 	include "Editor/vendor/imgui"
+	include "Editor/vendor/yaml-cpp"
 group ""
 
 group "Core"
