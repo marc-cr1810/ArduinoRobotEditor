@@ -23,14 +23,19 @@ void CodeEditor::OnUpdate()
 
 void CodeEditor::OnRender()
 {
+	std::string name = "CodeEditor" + m_Filepath;
+	const float footerHightToReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeight();
+	if (ImGui::BeginChild("Editor", ImVec2(0, -footerHightToReserve), false, ImGuiWindowFlags_HorizontalScrollbar))
+	{
+		m_TextEditor->Render(name.c_str());
+		ImGui::EndChild();
+	}
+
 	auto cpos = m_TextEditor->GetCursorPosition();
 	ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s | %s", cpos.mLine + 1, cpos.mColumn + 1, m_TextEditor->GetTotalLines(),
 		m_TextEditor->IsOverwrite() ? "Ovr" : "Ins",
 		m_TextEditor->CanUndo() ? "*" : " ",
 		m_TextEditor->GetLanguageDefinition().mName.c_str(), m_Filepath.c_str());
-
-	std::string name = "CodeEditor" + m_Filepath;
-	m_TextEditor->Render(name.c_str());
 }
 
 void CodeEditor::Edit(const char* filepath)

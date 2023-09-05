@@ -89,6 +89,7 @@ Application::Application(const char* projFilepath)
 
 	// Init windows
 	m_ProjExp = CreateRef<ProjectExplorer>(m_Project);
+	m_OutputWind = CreateRef<OutputWindow>();
 }
 
 Application::~Application()
@@ -391,6 +392,8 @@ void Application::RenderDockspace()
 	RenderMenuBar();
 	RenderWindows();
 	RenderEditorWindows();
+
+	ImGui::ShowDemoWindow();
 }
 
 void Application::RenderMenuBar()
@@ -434,9 +437,9 @@ void Application::RenderMenuBar()
 		if (ImGui::BeginMenu("View"))
 		{
 			if (ImGui::MenuItem("Project Explorer"))
-			{
 				m_ProjExp->Open();
-			}
+			if (ImGui::MenuItem("Output"))
+				m_OutputWind->Open();
 			ImGui::EndMenu();
 		}
 
@@ -447,6 +450,7 @@ void Application::RenderMenuBar()
 void Application::RenderWindows()
 {
 	m_ProjExp->OnRender();
+	m_OutputWind->OnRender();
 }
 
 void Application::RenderEditorWindows()
@@ -462,10 +466,14 @@ void Application::RenderEditorWindows()
 		ImGuiWindowFlags editFlag = editor->IsModified() ? ImGuiWindowFlags_UnsavedDocument : 0;
 		bool opened = true;
 		ImGui::SetNextWindowDockID(dockspace_id, ImGuiCond_FirstUseEver);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		if (ImGui::Begin(windowLabel.c_str(), &opened, flags | editFlag))
 		{
+			ImGui::PopStyleVar();
 			editor->OnRender();
 		}
+		else
+			ImGui::PopStyleVar();
 		ImGui::End();
 
 		if (!opened)

@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Core/Project.h"
-#include "Windows/ProjectExplorer.h"
 #include "Editors/CodeEditor/CodeEditor.h"
+
+#include "Windows/ProjectExplorer.h"
+#include "Windows/OutputWindow.h"
 
 struct GLFWwindow;
 struct ImGuiWindow;
@@ -46,6 +48,7 @@ private:
 
 	// Windows
 	Ref<ProjectExplorer> m_ProjExp;
+	Ref<OutputWindow> m_OutputWind;
 
 	// Editors
 	Ref<Editor> m_ActiveEditor;
