@@ -22,6 +22,11 @@ public:
 	void Edit(const char* filepath) override;
 	void Save() override;
 
+	virtual bool CanUndo() { return m_TextEditor->CanUndo(); };
+	void Undo() override;
+	virtual bool CanRedo() { return m_TextEditor->CanRedo(); };
+	void Redo() override;
+
 	bool IsModified() const override;
 private:
 	Ref<TextEditor> m_TextEditor;

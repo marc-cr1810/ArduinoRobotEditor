@@ -114,6 +114,12 @@ void Application::Run()
 
 void Application::OpenEditor(const char* filepath)
 {
+	for each (auto editor in m_Editors)
+	{
+		if (editor->GetFilepath() == filepath)
+			return;
+	}
+
 	auto file = std::filesystem::path(filepath);
 	auto extension = file.extension();
 
@@ -227,15 +233,71 @@ void Application::LoadTheme()
 	style.ChildRounding = 4;
 }
 
-void Application::SetActiveEditor(Ref<Editor> editor)
+bool Application::SetActiveEditor()
 {
+	ImGuiContext& g = *ImGui::GetCurrentContext();
+	return SetActiveEditorFromWindow(g.NavWindow);
+}
+
+bool Application::SetActiveEditor(Ref<Editor> editor)
+{
+	if (editor == m_ActiveEditor)
+		return false;
+
+	if (std::find(m_Editors.begin(), m_Editors.end(), editor) == m_Editors.end())
+		return false;
+
 	if (editor)
 		LOG_INFO("Set Active: {0}", editor->GetFilename());
 	m_ActiveEditor = editor;
+	return true;
+}
+
+bool Application::FindActiveEditor()
+{
+	ImGuiContext& g = *ImGui::GetCurrentContext();
+	size_t count = g.WindowsFocusOrder.size();
+	for (int i = count - 1; i >= 0; i--)
+	{
+		auto window = g.WindowsFocusOrder[i];
+		if (!window->WasActive || !window->Active)
+			continue;
+		if (SetActiveEditorFromWindow(window))
+			return true;
+	}
+	return false;
+}
+
+bool Application::SetActiveEditorFromWindow(ImGuiWindow* window)
+{
+	if (!window)
+		return false;
+
+	std::string name = window->Name;
+	size_t typeIndex = name.find_last_of("##") + 1;
+	size_t idIndex = name.find_first_of("_");
+	if (typeIndex == std::string::npos || idIndex == std::string::npos)
+		return false;
+
+	std::string type = name.substr(typeIndex, idIndex - typeIndex);
+	if (type != "editorWindow")
+		return false;
+
+	size_t slashIndex = name.find_first_of('/');
+	auto id = name.substr(idIndex + 1, slashIndex);
+	int index = std::stoi(id);
+	if (m_Editors.size() > 0)
+		SetActiveEditor(m_Editors[index]);
+	else
+		SetActiveEditor(nullptr);
+	return true;
 }
 
 void Application::OnUpdate()
 {
+	if (m_RemovedEditor)
+		m_GetNewEditor = true;
+
 	if (m_ActiveEditor)
 		m_ActiveEditor->OnUpdate();
 }
@@ -312,6 +374,15 @@ void Application::OnRender()
 			ImGui::RenderPlatformWindowsDefault();
 			glfwMakeContextCurrent(backup_current_context);
 		}
+
+		if (ImGui::IsMouseClicked(0))
+			SetActiveEditor();
+
+		if (m_RemovedEditor && m_GetNewEditor)
+		{
+			FindActiveEditor();
+			m_RemovedEditor = m_GetNewEditor = false;
+		}
 	}
 }
 
@@ -328,20 +399,44 @@ void Application::RenderMenuBar()
 	{
 		if (ImGui::BeginMenu("File"))
 		{
-			if (ImGui::MenuItem("Save", "Ctrl+S"))
+			if (m_ActiveEditor)
 			{
-				m_ActiveEditor->Save();
+				std::string filename = m_ActiveEditor->GetFilename();
+				if (ImGui::MenuItem(std::string("Save " + filename).c_str(), "Ctrl+S"))
+				{
+					m_ActiveEditor->Save();
+				}
+			}
+			if (m_Editors.size() > 1)
+			{
+				if (ImGui::MenuItem("Save All", "Ctrl+Shift+S"))
+				{
+					for each (auto editor in m_Editors)
+						editor->Save();
+				}
 			}
 			ImGui::EndMenu();
 		}
 
 		if (ImGui::BeginMenu("Edit"))
 		{
+			if (m_ActiveEditor)
+			{
+				if (ImGui::MenuItem("Undo", "Ctrl+Z", false, m_ActiveEditor->CanUndo()))
+					m_ActiveEditor->Undo();
+				if (ImGui::MenuItem("Redo", "Ctrl+Y", false, m_ActiveEditor->CanRedo()))
+					m_ActiveEditor->Redo();
+			}
+
 			ImGui::EndMenu();
 		}
 
 		if (ImGui::BeginMenu("View"))
 		{
+			if (ImGui::MenuItem("Project Explorer"))
+			{
+				m_ProjExp->Open();
+			}
 			ImGui::EndMenu();
 		}
 
@@ -356,37 +451,31 @@ void Application::RenderWindows()
 
 void Application::RenderEditorWindows()
 {
-	std::vector<Ref<Editor>> editorsToClose;
+	std::vector<std::pair<size_t, Ref<Editor>>> editorsToClose;
+	ImGuiID dockspace_id = ImGui::GetID("EditorDockspace");
 
 	ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
-	for each (Ref<Editor> editor in m_Editors)
+	for (int i = 0; i < m_Editors.size(); i++)
 	{
-
+		Ref<Editor> editor = m_Editors[i];
+		std::string windowLabel = editor->GetFilename() + "##editorWindow_" + std::to_string(i);
 		ImGuiWindowFlags editFlag = editor->IsModified() ? ImGuiWindowFlags_UnsavedDocument : 0;
 		bool opened = true;
-		if (ImGui::Begin(editor->GetFilename().c_str(), &opened, flags | editFlag))
+		ImGui::SetNextWindowDockID(dockspace_id, ImGuiCond_FirstUseEver);
+		if (ImGui::Begin(windowLabel.c_str(), &opened, flags | editFlag))
 		{
 			editor->OnRender();
-
-			if (ImGui::IsWindowFocused() && m_ActiveEditor != editor)
-				SetActiveEditor(editor);
 		}
 		ImGui::End();
 
-		if (!editor->GetWindowInit())
-		{
-			ImGuiID dockspace_id = ImGui::GetID("EditorDockspace");
-			ImGui::DockBuilderDockWindow(editor->GetFilename().c_str(), dockspace_id);
-			editor->SetWindowInit(true);
-		}
-
 		if (!opened)
-			editorsToClose.push_back(editor);
+			editorsToClose.push_back(std::make_pair(i, editor));
 	}
 
 	for each (auto editor in editorsToClose)
 	{
-		CloseEditor(editor);
-		SetActiveEditor(nullptr);
+		if (m_Editors[editor.first] == m_ActiveEditor)
+			m_RemovedEditor = true;
+		CloseEditor(editor.second);
 	}
 }

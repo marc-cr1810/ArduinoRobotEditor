@@ -55,6 +55,18 @@ void CodeEditor::Save()
 	m_TextEditor->SetText(str);
 }
 
+void CodeEditor::Undo()
+{
+	if (m_TextEditor->CanUndo())
+		m_TextEditor->Undo();
+}
+
+void CodeEditor::Redo()
+{
+	if (m_TextEditor->CanRedo())
+		m_TextEditor->Redo();
+}
+
 bool CodeEditor::IsModified() const
 {
 	return m_TextEditor->CanUndo();

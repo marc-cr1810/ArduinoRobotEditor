@@ -5,6 +5,7 @@
 #include "Editors/CodeEditor/CodeEditor.h"
 
 struct GLFWwindow;
+struct ImGuiWindow;
 
 class Application
 {
@@ -19,7 +20,10 @@ public:
 private:
 	void LoadTheme();
 
-	void SetActiveEditor(Ref<Editor> editor);
+	bool SetActiveEditor();
+	bool SetActiveEditor(Ref<Editor> editor);
+	bool FindActiveEditor();
+	bool SetActiveEditorFromWindow(ImGuiWindow* window);
 
 	void OnUpdate();
 	void OnRender();
@@ -36,6 +40,7 @@ public:
 private:
 	int m_Width;
 	int m_Height;
+	bool m_InitEditorsWindow = false;
 
 	GLFWwindow* m_Window;
 
@@ -45,6 +50,8 @@ private:
 	// Editors
 	Ref<Editor> m_ActiveEditor;
 	std::vector<Ref<Editor>> m_Editors;
+	bool m_RemovedEditor = false;
+	bool m_GetNewEditor = false;
 
 	// Project
 	Ref<Project> m_Project;

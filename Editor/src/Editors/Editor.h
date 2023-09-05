@@ -12,6 +12,11 @@ public:
 	virtual void Save() {}
 	virtual void Edit(const char* filepath) {}
 
+	virtual bool CanUndo() { return false; };
+	virtual void Undo() {};
+	virtual bool CanRedo() { return false; };
+	virtual void Redo() {};
+
 	void SetWindowInit(bool initState) { m_InitWindow = initState; }
 	bool GetWindowInit() const { return m_InitWindow; }
 
