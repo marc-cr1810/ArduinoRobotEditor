@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Core/Project.h"
+#include "Core/Settings.h"
 #include "Editors/CodeEditor/CodeEditor.h"
 
+#include "Windows/SettingsWindow.h"
 #include "Windows/ProjectExplorer.h"
 #include "Windows/OutputWindow.h"
 
@@ -46,7 +48,10 @@ private:
 
 	GLFWwindow* m_Window;
 
+	Ref<Settings> m_Settings;
+
 	// Windows
+	Ref<SettingsWindow> m_SettingsWindow;
 	Ref<ProjectExplorer> m_ProjExp;
 	Ref<OutputWindow> m_OutputWind;
 

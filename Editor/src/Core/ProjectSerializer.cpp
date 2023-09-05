@@ -1,44 +1,7 @@
 #include "epch.h"
 #include "ProjectSerializer.h"
 
-#include <fstream>
-#include <yaml-cpp/yaml.h>
-
-#define YAML_BEGIN()				YAML::Emitter out;\
-									out << YAML::BeginMap
-
-#define YAML_END()					out << YAML::EndMap;\
-									std::ofstream fout(filepath);\
-									fout << out.c_str();\
-									fout.close()
-
-#define YAML_KEY(key)				out << YAML::Key << key
-#define YAML_KEY_VALUE(key, value)	out << YAML::Key << key << YAML::Value << value
-#define YAML_BEGIN_SEQ(key)			out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq
-#define YAML_END_SEQ()				out << YAML::EndSeq
-#define YAML_BEGIN_MAP()			out << YAML::BeginMap
-#define YAML_END_MAP()				out << YAML::EndMap
-
-YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec2& v)
-{
-	out << YAML::Flow;
-	out << YAML::BeginSeq << v.x << v.y << YAML::EndSeq;
-	return out;
-}
-
-YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec3& v)
-{
-	out << YAML::Flow;
-	out << YAML::BeginSeq << v.x << v.y << v.z << YAML::EndSeq;
-	return out;
-}
-
-YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec4& v)
-{
-	out << YAML::Flow;
-	out << YAML::BeginSeq << v.x << v.y << v.z << v.w << YAML::EndSeq;
-	return out;
-}
+#include "Utils/YAML.h"
 
 ProjectSerializer::ProjectSerializer(const Ref<Project>& project)
 	: m_Project(project)
@@ -46,8 +9,7 @@ ProjectSerializer::ProjectSerializer(const Ref<Project>& project)
 }
 
 void ProjectSerializer::Serialize(const std::string& filepath)
-{
-	
+{	
 	YAML_BEGIN();
 
 	YAML_KEY_VALUE("Name",  m_Project->m_Name);
@@ -73,6 +35,8 @@ bool ProjectSerializer::Deserialize(const std::string& filepath)
 bool ProjectSerializer::Deserialize(Project* project, const std::string& filepath)
 {
 	std::ifstream stream(filepath);
+	if (!stream.is_open())
+		return false;
 	std::stringstream strStream;
 	strStream << stream.rdbuf();
 
@@ -101,4 +65,6 @@ bool ProjectSerializer::Deserialize(Project* project, const std::string& filepat
 			project->m_IncludeFiles.push_back(it->second.as<std::string>());
 		}
 	}
+
+	return true;
 }

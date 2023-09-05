@@ -1,6 +1,8 @@
 #pragma once
 
-class OutputWindow
+#include "Windows/Window.h"
+
+class OutputWindow : public Window
 {
 public:
 	enum OutputLevel
@@ -14,16 +16,13 @@ public:
 public:
 	OutputWindow();
 
-	void OnRender();
+	void OnRender() override;
 
 	void AddLog(const std::string& output, const std::string& line, OutputLevel level = OUTPUT_LEVEL_INFO);
 	void Clear(const std::string& output);
-
-	void Open() { m_Open = true; }
 private:
 	std::string m_CurrentOutput;
 	std::unordered_map<std::string, std::vector<std::pair<OutputLevel, std::string>>> m_Outputs;
 
 	bool m_ScrollToBottom = false;
-	bool m_Open = true;
 };

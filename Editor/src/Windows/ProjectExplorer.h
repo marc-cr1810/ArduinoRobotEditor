@@ -1,16 +1,14 @@
 #pragma once
 #include "Core/Project.h"
 
-class ProjectExplorer
+#include "Windows/Window.h"
+
+class ProjectExplorer : public Window
 {
 public:
 	ProjectExplorer(Ref<Project> project);
 
-	void OnRender();
-
-	void Open() { m_Open = true; }
+	void OnRender() override;
 private:
 	Ref<Project> m_Project;
-
-	bool m_Open = true;
 };

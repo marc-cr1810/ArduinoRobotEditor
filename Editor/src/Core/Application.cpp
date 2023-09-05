@@ -34,6 +34,10 @@ Application::Application(const char* projFilepath)
 		ED_ASSERT("Application instance already exists!");
 	s_Instance = this;
 
+	m_Settings = CreateRef<Settings>();
+	SettingsSerializer settingsSerializer(m_Settings);
+	settingsSerializer.Deserialize("settings.config");
+
 	// Load the project
 	m_Project = CreateRef<Project>(projFilepath);
 	if (!m_Project->IsLoaded())
@@ -46,7 +50,7 @@ Application::Application(const char* projFilepath)
 	ED_ASSERT(success, "Could not initialize GLFW!");
 	glfwSetErrorCallback(GLFWErrorCallback);
 
-#ifdef NE_DEBUG
+#ifdef ED_DEBUG
 	glfwWindowHint(GLFW_CONTEXT_DEBUG, GLFW_TRUE);
 #endif
 
@@ -88,8 +92,12 @@ Application::Application(const char* projFilepath)
 	ImGui_ImplOpenGL3_Init("#version 330");
 
 	// Init windows
+	m_SettingsWindow = CreateRef<SettingsWindow>(m_Settings);
 	m_ProjExp = CreateRef<ProjectExplorer>(m_Project);
 	m_OutputWind = CreateRef<OutputWindow>();
+
+	m_ProjExp->Open();
+	m_OutputWind->Open();
 }
 
 Application::~Application()
@@ -418,6 +426,12 @@ void Application::RenderMenuBar()
 						editor->Save();
 				}
 			}
+
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Settings"))
+				m_SettingsWindow->Open();
+
 			ImGui::EndMenu();
 		}
 
@@ -449,6 +463,7 @@ void Application::RenderMenuBar()
 
 void Application::RenderWindows()
 {
+	m_SettingsWindow->OnRender();
 	m_ProjExp->OnRender();
 	m_OutputWind->OnRender();
 }
