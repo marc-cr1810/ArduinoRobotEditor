@@ -21,6 +21,8 @@ public:
 
 	void OpenEditor(const char* filepath);
 	void CloseEditor(Ref<Editor> editor);
+
+	void OutputLog(const std::string& output, const std::string& str, OutputWindow::OutputLevel level = OutputWindow::OutputLevel::OUTPUT_LEVEL_INFO);
 private:
 	void LoadTheme();
 

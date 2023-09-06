@@ -12,6 +12,7 @@
 #include <backends/imgui_impl_glfw.cpp>
 
 #include "Core/ProjectSerializer.h"
+#include "Utils/Process.h"
 
 Application* Application::s_Instance = nullptr;
 
@@ -111,6 +112,9 @@ Application::~Application()
 
 void Application::Run()
 {
+	Process proc("C:/Programs/arduino-cli.exe");
+	proc.Start("monitor -p COM3");
+
 	while (!glfwWindowShouldClose(m_Window))
 	{
 		glfwSwapBuffers(m_Window);
@@ -118,7 +122,12 @@ void Application::Run()
 
 		OnUpdate();
 		OnRender();
+
+		if (!proc.IsRunning())
+			LOG_INFO("Finished!");
 	}
+
+	proc.Stop();
 }
 
 void Application::OpenEditor(const char* filepath)
@@ -162,6 +171,11 @@ void Application::CloseEditor(Ref<Editor> editor)
 	auto itr = std::find(m_Editors.begin(), m_Editors.end(), editor);
 	if (itr != m_Editors.end())
 		m_Editors.erase(itr);
+}
+
+void Application::OutputLog(const std::string& output, const std::string& str, OutputWindow::OutputLevel level)
+{
+	m_OutputWind->AddLog(output, str, level);
 }
 
 void Application::LoadTheme()
