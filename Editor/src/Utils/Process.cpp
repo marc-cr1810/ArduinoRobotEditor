@@ -35,19 +35,22 @@ void Process::Start(const StartInfo startInfo)
     m_StartInfo = startInfo;
 
     m_Thread = std::async(std::launch::async, [this] {
-        Exec(m_StartInfo.Arguments.c_str());
-        LOG_INFO("The thread {0} has exited", (uint64_t)(&m_Thread));
-        Application::Get().OutputLog("General", utils::string_format("The thread %i has exited", (uint64_t)(&m_Thread)), false);
+        std::string cmd = m_StartInfo.Arguments + (m_StartInfo.GetErrorMsg ? " 2>&1" : "");
+        Exec(cmd.c_str());
+        LOG_INFO("The thread {0} has exited with code {1}", (uint64_t)(&m_Thread), m_ReturnCode);
+        Application::Get().OutputLog("General", utils::string_format("The thread %i has exited with code %i", (uint64_t)(&m_Thread), m_ReturnCode), false);
     });
 }
 
-std::vector<std::string> Process::Exec(const char* cmd)
+std::pair<std::vector<std::string>, int> Process::Exec(const char* cmd)
 {
     std::array<char, 128> buffer;
     std::vector<std::string> result;
+    int returnCode = -1;
+    auto pcloseWrapper = [&returnCode](FILE* cmd) { returnCode = _pclose(cmd); };
 
     std::string execCmd = "\"" + m_ProcessPath + "\" " + cmd;
-    std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(execCmd.c_str(), "r"), _pclose);
+    std::unique_ptr<FILE, decltype(pcloseWrapper)> pipe(_popen(execCmd.c_str(), "r"), pcloseWrapper);
 
     if (!pipe) {
         throw std::runtime_error("_popen() failed!");
@@ -70,5 +73,5 @@ std::vector<std::string> Process::Exec(const char* cmd)
     }
     m_Data = result;
     m_Status = PROCESS_STATUS_READY;
-    return result;
+    return std::make_pair(result, returnCode);
 }

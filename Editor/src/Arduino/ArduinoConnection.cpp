@@ -21,7 +21,7 @@ static std::string GetValue(const std::string& dataLine, const std::vector<std::
 std::unordered_map<std::string, ArduinoConnection> ArduinoConnections::GetConnections()
 {
 	Process proc(Application::GetSettings()->ArduinoCLIPath);
-	auto data = proc.Exec("board list");
+	auto data = proc.Exec("board list").first;
 
 	std::unordered_map<std::string, ArduinoConnection> result;
 	if (data.size() < 2)
