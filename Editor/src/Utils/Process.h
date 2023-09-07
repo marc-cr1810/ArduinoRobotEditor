@@ -10,6 +10,12 @@ public:
 	{
 		std::string Arguments;
 	};
+
+	enum Status
+	{
+		PROCESS_STATUS_READY,
+		PROCESS_STATUS_RUNNING
+	};
 public:
 	Process(const std::string& processPath);
 
@@ -19,7 +25,8 @@ public:
 
 	void Stop() { m_Cancel = true; }
 
-	bool IsRunning() const { return m_ThreadStatus != std::future_status::ready; }
+	std::vector<std::string> GetData() const { return m_Data; }
+	bool IsRunning() const { return m_Status == PROCESS_STATUS_RUNNING; }
 private:
 	std::string m_ProcessPath;
 	StartInfo m_StartInfo;
@@ -27,6 +34,6 @@ private:
 	std::vector<std::string> m_Data;
 
 	std::future<void> m_Thread;
-	std::future_status m_ThreadStatus;
+	Status m_Status;
 	std::atomic_bool m_Cancel = ATOMIC_VAR_INIT(false);
 };

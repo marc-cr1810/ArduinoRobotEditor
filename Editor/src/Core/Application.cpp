@@ -99,6 +99,12 @@ Application::Application(const char* projFilepath)
 
 	m_ProjExp->Open();
 	m_OutputWind->Open();
+
+	// Init Arduino
+	m_Arduino = CreateRef<ArduinoState>();
+
+	// Temproary
+	m_CurrentConnection = { "COM3", "serial", "Serial Port (USB)", "Arduino Mega or Mega 2560", "arduino:avr:mega", "arduino:avr" };
 }
 
 Application::~Application()
@@ -112,9 +118,6 @@ Application::~Application()
 
 void Application::Run()
 {
-	Process proc("C:/Programs/arduino-cli.exe");
-	proc.Start("monitor -p COM3");
-
 	while (!glfwWindowShouldClose(m_Window))
 	{
 		glfwSwapBuffers(m_Window);
@@ -122,12 +125,7 @@ void Application::Run()
 
 		OnUpdate();
 		OnRender();
-
-		if (!proc.IsRunning())
-			LOG_INFO("Finished!");
 	}
-
-	proc.Stop();
 }
 
 void Application::OpenEditor(const char* filepath)
@@ -173,9 +171,19 @@ void Application::CloseEditor(Ref<Editor> editor)
 		m_Editors.erase(itr);
 }
 
-void Application::OutputLog(const std::string& output, const std::string& str, OutputWindow::OutputLevel level)
+void Application::OutputLog(const std::string& output, const std::string& str, bool change)
 {
-	m_OutputWind->AddLog(output, str, level);
+	OutputLog(output, str, OutputWindow::OUTPUT_LEVEL_INFO, change);
+}
+
+void Application::OutputLog(const std::string& output, const std::string& str, OutputWindow::OutputLevel level, bool change)
+{
+	m_OutputWind->AddLog(output, str, level, change);
+}
+
+void Application::ClearOutput(const std::string& output)
+{
+	m_OutputWind->Clear(output);
 }
 
 void Application::LoadTheme()
@@ -318,6 +326,8 @@ bool Application::SetActiveEditorFromWindow(ImGuiWindow* window)
 
 void Application::OnUpdate()
 {
+	m_Arduino->OnUpdate();
+
 	if (m_RemovedEditor)
 		m_GetNewEditor = true;
 
@@ -412,10 +422,9 @@ void Application::OnRender()
 void Application::RenderDockspace()
 {
 	RenderMenuBar();
+	//RenderToolBar();
 	RenderWindows();
 	RenderEditorWindows();
-
-	ImGui::ShowDemoWindow();
 }
 
 void Application::RenderMenuBar()
@@ -471,8 +480,43 @@ void Application::RenderMenuBar()
 			ImGui::EndMenu();
 		}
 
+		if (ImGui::BeginMenu("Build"))
+		{
+			if (ImGui::MenuItem("Compile"))
+			{
+				m_Arduino->Compile(m_CurrentConnection, m_Project);
+			}
+			else if (ImGui::MenuItem("Upload"))
+			{
+				m_Arduino->Upload(m_CurrentConnection, m_Project);
+			}
+
+			ImGui::EndMenu();
+		}
+
 		ImGui::EndMenuBar();
 	}
+}
+
+void Application::RenderToolBar()
+{
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+	auto& colors = ImGui::GetStyle().Colors;
+	const auto& buttonHovered = colors[ImGuiCol_ButtonHovered];
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonHovered.x, buttonHovered.y, buttonHovered.z, 0.5f));
+	const auto& buttonActive = colors[ImGuiCol_ButtonActive];
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
+
+	ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+
+
+	ImGui::PopStyleVar(2);
+	ImGui::PopStyleColor(3);
+	ImGui::End();
+
 }
 
 void Application::RenderWindows()

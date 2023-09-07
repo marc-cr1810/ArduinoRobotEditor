@@ -7,6 +7,7 @@ public:
 	~Project() = default;
 
 	std::string GetFilepath() const { return m_Filepath; }
+	std::string GetDirectory() const { return m_Directory; }
 	std::string GetName() const { return m_Name; }
 
 	void SetStartupFile(const std::string& file) { m_StartupFile = file; }

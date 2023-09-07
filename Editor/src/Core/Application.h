@@ -8,6 +8,8 @@
 #include "Windows/ProjectExplorer.h"
 #include "Windows/OutputWindow.h"
 
+#include "Arduino/ArduinoState.h"
+
 struct GLFWwindow;
 struct ImGuiWindow;
 
@@ -22,7 +24,9 @@ public:
 	void OpenEditor(const char* filepath);
 	void CloseEditor(Ref<Editor> editor);
 
-	void OutputLog(const std::string& output, const std::string& str, OutputWindow::OutputLevel level = OutputWindow::OutputLevel::OUTPUT_LEVEL_INFO);
+	void OutputLog(const std::string& output, const std::string& str, bool change = true);
+	void OutputLog(const std::string& output, const std::string& str, OutputWindow::OutputLevel level, bool change = true);
+	void ClearOutput(const std::string& output);
 private:
 	void LoadTheme();
 
@@ -37,10 +41,12 @@ private:
 	void RenderDockspace();
 
 	void RenderMenuBar();
+	void RenderToolBar();
 	void RenderWindows();
 	void RenderEditorWindows();
 public:
 	static Application& Get() { return *s_Instance; }
+	static Ref<Settings> GetSettings() { return Get().m_Settings; }
 	static Ref<Project> GetProject() { return Get().m_Project; }
 	static Ref<Editor> GetEditor() { return Get().m_ActiveEditor; }
 private:
@@ -65,6 +71,10 @@ private:
 
 	// Project
 	Ref<Project> m_Project;
+
+	// Arduino
+	Ref<ArduinoState> m_Arduino;
+	ArduinoConnection m_CurrentConnection;
 private:
 	static Application* s_Instance;
 };

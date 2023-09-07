@@ -7,13 +7,6 @@ OutputWindow::OutputWindow()
 {
 	m_Outputs["General"];
 	m_CurrentOutput = "General";
-
-	AddLog("Build", "Hello world!");
-	AddLog("Build", "Hello world!");
-	AddLog("Build", "Hello world!");
-	AddLog("Build", "Hello world!");
-	AddLog("Build", "Hello world!", OUTPUT_LEVEL_ERR);
-	AddLog("Build", "Hello world!");
 }
 
 void OutputWindow::OnRender()
@@ -70,10 +63,16 @@ void OutputWindow::OnRender()
 	}
 }
 
-void OutputWindow::AddLog(const std::string& output, const std::string& line, OutputLevel level)
+void OutputWindow::AddLog(const std::string& output, const std::string& line, bool change)
+{
+	AddLog(output, line, OUTPUT_LEVEL_INFO, change);
+}
+
+void OutputWindow::AddLog(const std::string& output, const std::string& line, OutputLevel level, bool change)
 {
 	m_Outputs[output].push_back(std::make_pair(level, line));
-	m_CurrentOutput = output;
+	if (change)
+		m_CurrentOutput = output;
 	m_ScrollToBottom = true;
 }
 

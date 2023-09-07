@@ -8,7 +8,6 @@
 #include <stdexcept>
 #include <string>
 #include <array>
-#include <format>
 
 #include "Core/Application.h"
 #include "Utils/Utils.h"
@@ -30,16 +29,16 @@ void Process::Start(const StartInfo startInfo)
 {
     using namespace std::chrono_literals;
 
+    m_Status = PROCESS_STATUS_RUNNING;
+
     m_Data.clear();
     m_StartInfo = startInfo;
 
     m_Thread = std::async(std::launch::async, [this] {
-        m_Data = Exec(m_StartInfo.Arguments.c_str());
+        Exec(m_StartInfo.Arguments.c_str());
         LOG_INFO("The thread {0} has exited", (uint64_t)(&m_Thread));
-        Application::Get().OutputLog("General", utils::string_format("The thread %i has exited", (uint64_t)(&m_Thread)));
+        Application::Get().OutputLog("General", utils::string_format("The thread %i has exited", (uint64_t)(&m_Thread)), false);
     });
-
-    m_ThreadStatus = m_Thread.wait_for(0ms);
 }
 
 std::vector<std::string> Process::Exec(const char* cmd)
@@ -54,6 +53,8 @@ std::vector<std::string> Process::Exec(const char* cmd)
         throw std::runtime_error("_popen() failed!");
     }
 
+    m_Status = PROCESS_STATUS_RUNNING;
+
     std::string line;
     while (!feof(pipe.get()) && !m_Cancel)
     {
@@ -67,5 +68,7 @@ std::vector<std::string> Process::Exec(const char* cmd)
             line = "";
         }
     }
+    m_Data = result;
+    m_Status = PROCESS_STATUS_READY;
     return result;
 }

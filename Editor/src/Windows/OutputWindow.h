@@ -18,7 +18,8 @@ public:
 
 	void OnRender() override;
 
-	void AddLog(const std::string& output, const std::string& line, OutputLevel level = OUTPUT_LEVEL_INFO);
+	void AddLog(const std::string& output, const std::string& line, bool change = false);
+	void AddLog(const std::string& output, const std::string& line, OutputLevel level, bool change = false);
 	void Clear(const std::string& output);
 private:
 	std::string m_CurrentOutput;
