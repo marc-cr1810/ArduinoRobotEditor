@@ -54,6 +54,7 @@ void CodeEditor::Edit(const char* filepath)
 void CodeEditor::Save()
 {
 	auto str = m_TextEditor->GetText();
+	str.pop_back();
 	std::ofstream ofs(m_Filepath, std::ofstream::trunc);
 	ofs << str;
 	ofs.close();

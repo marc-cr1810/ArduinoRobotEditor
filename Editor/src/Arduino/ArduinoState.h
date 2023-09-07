@@ -13,7 +13,7 @@ public:
 	{
 		ARDUINO_STATE_READY,
 		ARDUINO_STATE_COMPILING,
-		ARDUINO_STATE_UPLOADING,
+		ARDUINO_STATE_UPLOADING
 	};
 public:
 	ArduinoState();
@@ -30,6 +30,7 @@ public:
 	bool IsReady() const { return m_State == ARDUINO_STATE_READY; }
 private:
 	std::unordered_map<std::string, ArduinoConnection> m_Connections;
+
 	State m_State = ARDUINO_STATE_READY;
 	Ref<Process> m_Proc;
 };
