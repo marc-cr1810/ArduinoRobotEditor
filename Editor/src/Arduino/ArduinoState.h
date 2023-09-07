@@ -23,10 +23,13 @@ public:
 	void Compile(const ArduinoConnection& connection, const Ref<Project> project);
 	void Upload(const ArduinoConnection& connection, const Ref<Project> project);
 
+	void FindAvaliablePorts();
+	std::unordered_map<std::string, ArduinoConnection> GetAvaliablePorts() const { return m_Connections; }
+
 	State GetState() const { return m_State; }
 	bool IsReady() const { return m_State == ARDUINO_STATE_READY; }
 private:
-	std::vector<ArduinoConnection> m_Connections;
+	std::unordered_map<std::string, ArduinoConnection> m_Connections;
 	State m_State = ARDUINO_STATE_READY;
 	Ref<Process> m_Proc;
 };

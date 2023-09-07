@@ -28,6 +28,7 @@ void ArduinoState::OnUpdate()
 			auto result = m_Proc->GetData();
 			for each (auto s in result)
 				Application::Get().OutputLog("Upload", s);
+			Application::Get().OutputLog("Upload", utils::string_format("========== Upload finished =========="));
 			m_State = ARDUINO_STATE_READY;
 			break;
 		}
@@ -47,4 +48,13 @@ void ArduinoState::Compile(const ArduinoConnection& connection, const Ref<Projec
 void ArduinoState::Upload(const ArduinoConnection& connection, const Ref<Project> project)
 {
 	m_State = ARDUINO_STATE_UPLOADING;
+	Application::Get().ClearOutput("Upload");
+	Application::Get().OutputLog("Upload", utils::string_format("------ Upload Started: Project: %s ------", project->GetName().c_str()));
+	std::string uploadCmd = utils::string_format("upload %s -p %s", project->GetDirectory().c_str(), connection.Port.c_str());
+	m_Proc->Start(uploadCmd);
+}
+
+void ArduinoState::FindAvaliablePorts()
+{
+	m_Connections = ArduinoConnections::GetConnections();
 }

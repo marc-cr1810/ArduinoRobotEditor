@@ -13,6 +13,7 @@
 
 #include "Core/ProjectSerializer.h"
 #include "Utils/Process.h"
+#include "Utils/Utils.h"
 
 Application* Application::s_Instance = nullptr;
 
@@ -102,9 +103,6 @@ Application::Application(const char* projFilepath)
 
 	// Init Arduino
 	m_Arduino = CreateRef<ArduinoState>();
-
-	// Temproary
-	m_CurrentConnection = { "COM3", "serial", "Serial Port (USB)", "Arduino Mega or Mega 2560", "arduino:avr:mega", "arduino:avr" };
 }
 
 Application::~Application()
@@ -482,13 +480,51 @@ void Application::RenderMenuBar()
 
 		if (ImGui::BeginMenu("Build"))
 		{
-			if (ImGui::MenuItem("Compile"))
+			bool canCompile = true;
+			if (m_CurrentConnection.Port.empty())
+				canCompile = false;
+			if (ImGui::MenuItem("Compile", nullptr, false, canCompile))
 			{
+				for each (auto editor in m_Editors)
+					editor->Save();
 				m_Arduino->Compile(m_CurrentConnection, m_Project);
 			}
-			else if (ImGui::MenuItem("Upload"))
+
+			bool canUpload = true;
+			for each (auto editor in m_Editors)
+			{
+				if (editor->IsModified())
+				{
+					canUpload = false;
+					break;
+				}
+			}
+			if (ImGui::MenuItem("Upload", nullptr, false, canUpload && canCompile))
 			{
 				m_Arduino->Upload(m_CurrentConnection, m_Project);
+			}
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Tools"))
+		{
+			if (ImGui::BeginCombo("##ports", m_CurrentConnection.Port.c_str()))
+			{
+				for (auto const& [port, connection] : m_Arduino->GetAvaliablePorts())
+				{
+					bool isSelected = m_CurrentConnection.Port == port;
+					if (ImGui::Selectable(utils::string_format("%s (%s)", port.c_str(), connection.BoardName.c_str()).c_str(), isSelected))
+						m_CurrentConnection = connection;
+					if (isSelected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+
+			if (ImGui::MenuItem("Reload Ports"))
+			{
+				m_Arduino->FindAvaliablePorts();
 			}
 
 			ImGui::EndMenu();

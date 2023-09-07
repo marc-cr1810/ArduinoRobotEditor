@@ -16,5 +16,5 @@ struct ArduinoConnection
 class ArduinoConnections final
 {
 public:
-	static std::vector<std::string> GetConnections();
+	static std::unordered_map<std::string, ArduinoConnection> GetConnections();
 };
