@@ -15,6 +15,9 @@
 #include "Utils/Process.h"
 #include "Utils/Utils.h"
 
+#include "Editors/CodeEditor/CodeEditor.h"
+#include "Editors/NodeEditor/NodeEditor.h"
+
 Application* Application::s_Instance = nullptr;
 
 static void GLFWErrorCallback(int error, const char* description)
@@ -141,7 +144,7 @@ void Application::OpenEditor(const char* filepath)
 	// Arduino Node file (Nodeuino!)
 	if (extension == ".nino")
 	{
-
+		editor = CreateRef<NodeEditor>();
 	}
 	// Sort out text based files
 	else
@@ -155,11 +158,14 @@ void Application::OpenEditor(const char* filepath)
 			langDef = CODE_LANG_C;
 
 		editor = CreateRef<CodeEditor>(langDef);
-		editor->Edit(filepath);
 	}
 
-	m_Editors.push_back(editor);
-	SetActiveEditor(editor);
+	if (editor)
+	{
+		editor->Edit(filepath);
+		m_Editors.push_back(editor);
+		SetActiveEditor(editor);
+	}
 }
 
 void Application::CloseEditor(Ref<Editor> editor)
@@ -279,6 +285,7 @@ bool Application::SetActiveEditor(Ref<Editor> editor)
 	if (editor)
 		LOG_INFO("Set Active: {0}", editor->GetFilename());
 	m_ActiveEditor = editor;
+	SetEditorErrorMarkers(editor);
 	return true;
 }
 
@@ -320,6 +327,36 @@ bool Application::SetActiveEditorFromWindow(ImGuiWindow* window)
 	else
 		SetActiveEditor(nullptr);
 	return true;
+}
+
+void Application::SetEditorErrorMarkers(Ref<Editor> editor)
+{
+	if (editor)
+	{
+		for (auto& [filepath, errors] : m_FileErrors)
+		{
+			auto path = std::filesystem::path(filepath);
+			auto editorPathStr = GetEditor()->GetFilepath();
+			std::replace(editorPathStr.begin(), editorPathStr.end(), '/', '\\');
+			auto editorPath = std::filesystem::path(editorPathStr);
+			if (!editorPath.is_absolute())
+			{
+				if (editorPathStr.front() != '\\')
+				{
+					editorPathStr = '\\' + editorPathStr;
+					editorPath = std::filesystem::path(editorPathStr);
+				}
+				auto currentPath = std::filesystem::current_path();
+				editorPath = currentPath.string() + editorPath.string();
+			}
+
+			if (editorPath == path)
+			{
+				GetEditor()->MarkErrors(errors);
+				return;
+			}
+		}
+	}
 }
 
 void Application::OnUpdate()
@@ -383,7 +420,9 @@ void Application::OnRender()
 		ImGuiIO& io = ImGui::GetIO();
 		ImGuiStyle& style = ImGui::GetStyle();
 		float minWinSizeX = style.WindowMinSize.x;
-		style.WindowMinSize.x = 370.0f;
+		style.WindowMinSize.x = 270.0f;
+		float minWinSizeY = style.WindowMinSize.y;
+		style.WindowMinSize.y = 270.0f;
 		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
 		{
 			ImGuiID dockspace_id = ImGui::GetID("EditorDockspace");
@@ -391,6 +430,7 @@ void Application::OnRender()
 		}
 
 		style.WindowMinSize.x = minWinSizeX;
+		style.WindowMinSize.y = minWinSizeY;
 
 		RenderDockspace();
 
@@ -595,4 +635,10 @@ void Application::RenderEditorWindows()
 			m_RemovedEditor = true;
 		CloseEditor(editor.second);
 	}
+}
+
+void Application::SetErrors(const std::string& filepath, std::map<int, std::string> errors)
+{
+	Get().m_FileErrors[filepath] = errors;
+	Get().SetEditorErrorMarkers(GetEditor());
 }

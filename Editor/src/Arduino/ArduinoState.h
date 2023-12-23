@@ -29,6 +29,8 @@ public:
 	State GetState() const { return m_State; }
 	bool IsReady() const { return m_State == ARDUINO_STATE_READY; }
 private:
+	void ProcessCompilationResult();
+private:
 	std::unordered_map<std::string, ArduinoConnection> m_Connections;
 
 	State m_State = ARDUINO_STATE_READY;

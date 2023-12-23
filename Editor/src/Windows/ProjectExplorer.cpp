@@ -2,6 +2,7 @@
 #include "ProjectExplorer.h"
 
 #include "Core/Application.h"
+#include "ImGui/ImGuiCommon.h"
 
 ProjectExplorer::ProjectExplorer(Ref<Project> project)
 	: m_Project(project)

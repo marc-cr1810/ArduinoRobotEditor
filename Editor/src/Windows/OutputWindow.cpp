@@ -2,6 +2,7 @@
 #include "OutputWindow.h"
 
 #include "Core/Application.h"
+#include "ImGui/ImGuiCommon.h"
 
 OutputWindow::OutputWindow()
 {

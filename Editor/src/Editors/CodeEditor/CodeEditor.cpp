@@ -1,6 +1,8 @@
 #include "epch.h"
 #include "CodeEditor.h"
 
+#include "Editors/CodeEditor/ColorPalette.h"
+
 CodeEditor::CodeEditor()
 {
 	m_TextEditor = CreateRef<TextEditor>();
@@ -9,7 +11,8 @@ CodeEditor::CodeEditor()
 CodeEditor::CodeEditor(TextEditor::LanguageDefinition lang)
 {
 	m_TextEditor = CreateRef<TextEditor>();
-
+	m_TextEditor->SetShowWhitespaces(false);
+	m_TextEditor->SetPalette(ColorPalette::GetDraculaPalette());
 	m_TextEditor->SetLanguageDefinition(lang);
 }
 
@@ -71,6 +74,11 @@ void CodeEditor::Redo()
 {
 	if (m_TextEditor->CanRedo())
 		m_TextEditor->Redo();
+}
+
+void CodeEditor::MarkErrors(std::map<int, std::string> errors)
+{
+	m_TextEditor->SetErrorMarkers(errors);
 }
 
 bool CodeEditor::IsModified() const

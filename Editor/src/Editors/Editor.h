@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 class Editor
 {
 public:
@@ -10,12 +12,15 @@ public:
 	virtual void OnRender() = 0;
 
 	virtual void Save() {}
-	virtual void Edit(const char* filepath) {}
+	virtual void Edit(const char* filepath) { m_Filepath = filepath; }
 
 	virtual bool CanUndo() { return false; };
 	virtual void Undo() {};
 	virtual bool CanRedo() { return false; };
 	virtual void Redo() {};
+
+	virtual void MarkErrors(std::map<int, std::string> errors) {};
+	virtual void GetMarkedErrors(std::map<int, std::string> errors) {};
 
 	void SetWindowInit(bool initState) { m_InitWindow = initState; }
 	bool GetWindowInit() const { return m_InitWindow; }

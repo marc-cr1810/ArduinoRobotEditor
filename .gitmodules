@@ -13,7 +13,7 @@
 	url = https://github.com/gabime/spdlog.git
 [submodule "Editor/vendor/imgui_textedit"]
 	path = Editor/vendor/imgui_textedit
-	url = https://github.com/BalazsJako/ImGuiColorTextEdit.git
+	url = https://github.com/marc-cr1810/ImGuiColorTextEdit.git
 [submodule "Editor/vendor/yaml-cpp"]
 	path = Editor/vendor/yaml-cpp
 	url = https://github.com/marc-cr1810/yaml-cpp.git

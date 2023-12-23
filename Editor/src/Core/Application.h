@@ -2,7 +2,7 @@
 
 #include "Core/Project.h"
 #include "Core/Settings.h"
-#include "Editors/CodeEditor/CodeEditor.h"
+#include "Editors/Editor.h"
 
 #include "Windows/SettingsWindow.h"
 #include "Windows/ProjectExplorer.h"
@@ -35,6 +35,9 @@ private:
 	bool FindActiveEditor();
 	bool SetActiveEditorFromWindow(ImGuiWindow* window);
 
+	void SetEditorErrorMarkers(Ref<Editor> editor);
+	void UpdateEditorErrorMarkers(Ref<Editor> editor);
+
 	void OnUpdate();
 	void OnRender();
 
@@ -49,6 +52,7 @@ public:
 	static Ref<Settings> GetSettings() { return Get().m_Settings; }
 	static Ref<Project> GetProject() { return Get().m_Project; }
 	static Ref<Editor> GetEditor() { return Get().m_ActiveEditor; }
+	static void SetErrors(const std::string& filepath, std::map<int, std::string> errors);
 private:
 	int m_Width;
 	int m_Height;
@@ -68,6 +72,8 @@ private:
 	std::vector<Ref<Editor>> m_Editors;
 	bool m_RemovedEditor = false;
 	bool m_GetNewEditor = false;
+
+	std::unordered_map<std::string, std::map<int, std::string>> m_FileErrors;
 
 	// Project
 	Ref<Project> m_Project;

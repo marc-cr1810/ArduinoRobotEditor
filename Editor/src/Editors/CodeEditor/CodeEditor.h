@@ -27,6 +27,8 @@ public:
 	virtual bool CanRedo() { return m_TextEditor->CanRedo(); };
 	void Redo() override;
 
+	void MarkErrors(std::map<int, std::string> errors) override;
+
 	bool IsModified() const override;
 private:
 	Ref<TextEditor> m_TextEditor;

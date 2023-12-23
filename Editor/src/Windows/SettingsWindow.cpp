@@ -2,6 +2,7 @@
 #include "SettingsWindow.h"
 
 #include "Core/Application.h"
+#include "ImGui/ImGuiCommon.h"
 
 SettingsWindow::SettingsWindow(Ref<Settings> settings)
 	: m_Settings(settings)

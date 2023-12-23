@@ -15,6 +15,8 @@
 
 #define BIT(x) (1 << x)
 
+#define ARRAY_LENGTH(array) (sizeof(array) / sizeof((array)[0]))
+
 template<typename T>
 using Scope = std::unique_ptr<T>;
 template<typename T, typename ... Args>
