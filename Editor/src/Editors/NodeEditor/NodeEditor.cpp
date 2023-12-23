@@ -4,6 +4,8 @@
 NodeEditor::NodeEditor()
 {
 	ImNode::Config config;
+    config.SettingsFile = "Simple.json";
+    
 	m_EditorContext = ImNode::CreateEditor(&config);
 
     m_NodeGraph = CreateScope<NodeGraph>();
@@ -26,16 +28,29 @@ void NodeEditor::OnRender()
 	ImNode::Begin("Node Editor", ImVec2(0.0, 0.0f));
 
     UpdateNodes();
-
+    
     m_NodeGraph->ForEachNode([](EditorNode* node) { node->Render(); });
-
+    
     m_NodeGraph->ForEachLink([this](const EditorNodeLink& link) {
         const auto& outputPin = m_NodeGraph->GetPinByID(link.Start);
         const bool isExecution = outputPin.Type == PinType::Execution;
         ImNode::Link((uintptr_t)link.ID, (uintptr_t)link.Start, (uintptr_t)link.End, GetPinColor(outputPin.Type), isExecution ? 3.0f : 1.0f);
         });
 
-    RenderContextMenus();
+    //int uniqueId = 1;
+    //// Start drawing nodes.
+    //ImNode::BeginNode(uniqueId++);
+    //ImGui::Text("Node A");
+    //ImNode::BeginPin(uniqueId++, ImNode::PinKind::Input);
+    //ImGui::Text("-> In");
+    //ImNode::EndPin();
+    //ImGui::SameLine();
+    //ImNode::BeginPin(uniqueId++, ImNode::PinKind::Output);
+    //ImGui::Text("Out ->");
+    //ImNode::EndPin();
+    //ImNode::EndNode();
+
+    //RenderContextMenus();
 
 	ImNode::End();
 	ImNode::SetCurrentEditor(nullptr);
