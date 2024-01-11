@@ -11,6 +11,8 @@ NodeEditor::NodeEditor()
     m_NodeGraph = CreateScope<NodeGraph>();
 
     m_NewNodeMenu = CreateScope<NewNodeContextMenu>("New Node Menu", *m_NodeGraph.get());
+
+    m_HasMenuBar = true;
 }
 
 NodeEditor::~NodeEditor()

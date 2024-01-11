@@ -6,6 +6,13 @@
 void ContextMenu::OnRender()
 {
 	ImNode::Suspend();
+	//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8, 8));
+	//if (ImGui::BeginPopup("Node Context Menu"))
+	//{
+	//	ImGui::TextUnformatted("Node Context Menu");
+	//	ImGui::EndPopup();
+	//}
+	//ImGui::PopStyleVar();
 
 	/*if (m_Open)
 	{

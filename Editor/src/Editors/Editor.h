@@ -30,8 +30,11 @@ public:
 
 	virtual bool IsModified() const { return false; }
 
+	bool HasMenuBar() const { return m_HasMenuBar; }
+
 	bool operator==(const Ref<Editor> b) { return m_Filepath == b->m_Filepath; }
 protected:
 	std::string m_Filepath;
+	bool m_HasMenuBar = false;
 	bool m_InitWindow = false;
 };

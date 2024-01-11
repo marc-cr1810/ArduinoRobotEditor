@@ -613,10 +613,11 @@ void Application::RenderEditorWindows()
 		Ref<Editor> editor = m_Editors[i];
 		std::string windowLabel = editor->GetFilename() + "##editorWindow_" + std::to_string(i);
 		ImGuiWindowFlags editFlag = editor->IsModified() ? ImGuiWindowFlags_UnsavedDocument : 0;
+		ImGuiWindowFlags menuBarFlag = editor->HasMenuBar() ? ImGuiWindowFlags_MenuBar : 0;
 		bool opened = true;
 		ImGui::SetNextWindowDockID(dockspace_id, ImGuiCond_FirstUseEver);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		if (ImGui::Begin(windowLabel.c_str(), &opened, flags | editFlag))
+		if (ImGui::Begin(windowLabel.c_str(), &opened, flags | editFlag | menuBarFlag))
 		{
 			ImGui::PopStyleVar();
 			editor->OnRender();
